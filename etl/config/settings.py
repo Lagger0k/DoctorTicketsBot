@@ -11,17 +11,18 @@ class EtLSettings(BaseSettings):
     """
 
     # DB
-    host: str = Field(...)
-    port: int = Field(...)
-    user: str = Field(...)
-    password: str = Field(...)
+    host: str = Field(default='localhost')
+    port: int = Field(default=54321)
+    user: str = Field(default='postgres')
+    password: str = Field(default='postgres')
+    db: str = Field(default='test_ticket')
     base_dir: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     model_config = SettingsConfigDict(env_prefix='DB_')
 
     @property
     def db_connection_str(self) -> str:
-        return f"postgresql+asyncpg://{self.db_user}:{self.db_password}@{self.host}:{self.port}/{self.db_name}"
+        return f"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.db}"
 
 
 class Settings(BaseModel):
@@ -29,7 +30,7 @@ class Settings(BaseModel):
     Настройки всех сервисов.
     """
 
-    etl = EtLSettings()
+    etl: EtLSettings = EtLSettings()
 
 
 settings = Settings()
