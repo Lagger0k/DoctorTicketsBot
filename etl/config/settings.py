@@ -1,26 +1,35 @@
 import os
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
+from pydantic_settings import SettingsConfigDict
 from pydantic.fields import Field
-
-# Корень проекта
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from pydantic import BaseModel
 
 
-class Settings(BaseSettings):
+class EtLSettings(BaseSettings):
     """
     Настройки ETL сервиса.
     """
 
     # DB
-    DB_HOST: str = Field(..., env='DB_HOST')
-    DB_PORT: str = Field(..., env='DB_PORT')
-    DB_USER: str = Field(..., env='DB_USER')
-    DB_PASSWORD: str = Field(..., env='DB_PASSWORD')
-    # Extractor
-    REQUEST_LIMIT: int = Field(..., env='REQUEST_LIMIT')
+    host: str = Field(...)
+    port: int = Field(...)
+    user: str = Field(...)
+    password: str = Field(...)
+    base_dir: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    class Config:
-        env_file = '.env'
+    model_config = SettingsConfigDict(env_prefix='DB_')
+
+    @property
+    def db_connection_str(self) -> str:
+        return f"postgresql+asyncpg://{self.db_user}:{self.db_password}@{self.host}:{self.port}/{self.db_name}"
 
 
-etl_settings = Settings()
+class Settings(BaseModel):
+    """
+    Настройки всех сервисов.
+    """
+
+    etl = EtLSettings()
+
+
+settings = Settings()
