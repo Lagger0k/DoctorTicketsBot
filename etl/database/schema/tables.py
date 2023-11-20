@@ -1,6 +1,8 @@
 from datetime import date
 from typing import List
 from typing import Optional
+from uuid import uuid4
+from uuid import UUID
 
 from sqlalchemy import BigInteger
 from sqlalchemy import Column
@@ -11,21 +13,19 @@ from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.ext.declarative import declared_attr
 
 from database.schema.mixins import TaskMixin
 from database.schema.mixins import LastModifiedMixin
 
 
-class Base(DeclarativeBase):
+class Base(AsyncAttrs, DeclarativeBase):
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower()
 
-    id = mapped_column(
-        String(255),
-        primary_key=True,
-    )
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
 
 
 class User(Base):
